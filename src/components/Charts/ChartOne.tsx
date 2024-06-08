@@ -108,7 +108,11 @@ interface ChartOneState {
   }[];
 }
 
-const getFilteredHourlyData = (todayHours: any[], tomorrowHours: any[], currentDateTime: Date) => {
+const getFilteredHourlyData = (
+  todayHours: any[],
+  tomorrowHours: any[],
+  currentDateTime: Date,
+) => {
   const filteredData = [];
   const labels = [];
   const temperatures = [];
@@ -126,7 +130,9 @@ const getFilteredHourlyData = (todayHours: any[], tomorrowHours: any[], currentD
       hourData = todayHours.find((hour) => hour.datetime === targetHourString);
     } else {
       // Tomorrow
-      hourData = tomorrowHours.find((hour) => hour.datetime === targetHourString);
+      hourData = tomorrowHours.find(
+        (hour) => hour.datetime === targetHourString,
+      );
     }
 
     if (hourData) {
@@ -142,11 +148,11 @@ const getFilteredHourlyData = (todayHours: any[], tomorrowHours: any[], currentD
 
 const ChartOne: React.FC = () => {
   //@ts-ignore
-  const {name}=useName()
-  console.log("name",name)
-  const queryClient=useQueryClient()
-  const data=queryClient.getQueryData(["weather",name ])
-  console.log("data:",data)
+  const { name } = useName();
+  console.log("name", name);
+  const queryClient = useQueryClient();
+  const data = queryClient.getQueryData(["weather", name]);
+  console.log("data:", data);
   const currentDateTime = new Date();
 
   const [state, setState] = useState<ChartOneState>({
@@ -168,7 +174,11 @@ const ChartOne: React.FC = () => {
       const todayHours = data?.days[0].hours;
       //@ts-ignore
       const tomorrowHours = data?.days[1] ? data?.days[1].hours : [];
-      const { labels, temperatures, windSpeeds } = getFilteredHourlyData(todayHours, tomorrowHours, currentDateTime);
+      const { labels, temperatures, windSpeeds } = getFilteredHourlyData(
+        todayHours,
+        tomorrowHours,
+        currentDateTime,
+      );
       setState({
         series: [
           {
@@ -185,8 +195,6 @@ const ChartOne: React.FC = () => {
       options.xaxis.categories = labels;
     }
   }, [data]);
-
-  
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
@@ -227,7 +235,15 @@ const ChartOne: React.FC = () => {
       <div>
         <div id="chartOne" className="-ml-5">
           <ReactApexChart
-            options={{ ...options, xaxis: { ...options.xaxis, categories: state.series[0].data.map((_, i) => options?.xaxis?.categories[i]) } }}
+            options={{
+              ...options,
+              xaxis: {
+                ...options.xaxis,
+                categories: state.series[0].data.map(
+                  (_, i) => options?.xaxis?.categories[i],
+                ),
+              },
+            }}
             series={state.series}
             type="area"
             height={350}

@@ -9,7 +9,7 @@ const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
-  const {name,updateName}=useName()
+  const { name, updateName } = useName();
   // State to hold the search input value
   const [searchValue, setSearchValue] = useState<string>("");
   const [cityName, setCityName] = useState<string>("");
@@ -20,7 +20,7 @@ const Header = (props: {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateName(searchValue)
+    updateName(searchValue);
     setCityName(searchValue);
   };
 
@@ -79,7 +79,10 @@ const Header = (props: {
         <div className="hidden sm:block">
           <form onSubmit={handleSearchSubmit} method="POST">
             <div className="relative">
-              <button type="submit" className="absolute left-0 top-1/2 -translate-y-1/2">
+              <button
+                type="submit"
+                className="absolute left-0 top-1/2 -translate-y-1/2"
+              >
                 <svg
                   className="fill-body hover:fill-primary dark:fill-bodydark dark:hover:fill-primary"
                   width="20"

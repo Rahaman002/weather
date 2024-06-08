@@ -7,9 +7,9 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const ChartTwo: React.FC = () => {
   //@ts-ignore
-  const {name}=useName()
-  const queryClient=useQueryClient()
-  const data=queryClient.getQueryData(["weather",name])
+  const { name } = useName();
+  const queryClient = useQueryClient();
+  const data = queryClient.getQueryData(["weather", name]);
   const [chartOptions, setChartOptions] = useState<ApexOptions>({
     colors: ["#3C50E0", "#80CAEE"],
     chart: {
@@ -65,7 +65,9 @@ const ChartTwo: React.FC = () => {
       //@ts-ignore
       const nextSevenDaysData = data?.days?.slice(0, 7);
 
-      const temperatureData = nextSevenDaysData?.map((day: any) => ((Number(day.temp) - 32) / 1.8).toFixed(1));
+      const temperatureData = nextSevenDaysData?.map((day: any) =>
+        ((Number(day.temp) - 32) / 1.8).toFixed(1),
+      );
       const humidityData = nextSevenDaysData?.map((day: any) => day.humidity);
 
       setSeries([
@@ -73,9 +75,20 @@ const ChartTwo: React.FC = () => {
         { name: "Humidity", data: humidityData },
       ]);
 
-      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const daysOfWeek = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
       const todayIndex = new Date().getDay();
-      const categories = daysOfWeek.slice(todayIndex, todayIndex + 7).concat(daysOfWeek.slice(0, todayIndex)).slice(0, 7);
+      const categories = daysOfWeek
+        .slice(todayIndex, todayIndex + 7)
+        .concat(daysOfWeek.slice(0, todayIndex))
+        .slice(0, 7);
 
       setChartOptions((prevOptions) => ({
         ...prevOptions,

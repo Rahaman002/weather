@@ -6,7 +6,7 @@ import { useName } from "../../store/weatherName";
 
 const MapOne = () => {
   //@ts-ignore
-  const {updateName}=useName()
+  const { updateName } = useName();
   const regionNames = {
     "IN-AN": "Andaman and Nicobar Islands",
     "IN-AP": "Andhra Pradesh",
@@ -44,7 +44,7 @@ const MapOne = () => {
     "IN-UT": "Uttarakhand",
     "IN-WB": "West Bengal",
   };
-  
+
   useEffect(() => {
     const mapOne = new jsVectorMap({
       selector: "#mapOne",
@@ -72,8 +72,8 @@ const MapOne = () => {
       },
       onRegionClick: function (event: any, code: string) {
         //@ts-ignore
-        var name = (regionNames?.[code]) || code;
-        updateName(name)
+        var name = regionNames?.[code] || code;
+        updateName(name);
         console.log("Region Name:", name);
       },
 

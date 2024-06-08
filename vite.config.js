@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   define: {
     // Define environment variables accessible in client-side code
-    'process.env': JSON.stringify(import.meta.env)
-  }
+    "process.env": JSON.stringify(import.meta.env),
+  },
 });

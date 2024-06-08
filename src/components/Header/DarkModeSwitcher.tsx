@@ -3,7 +3,6 @@ import { useWeather } from "../../routes/getWeatherByName";
 
 const DarkModeSwitcher = () => {
   const [colorMode, setColorMode] = useColorMode();
-  
 
   return (
     <li>
