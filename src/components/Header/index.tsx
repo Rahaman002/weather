@@ -1,12 +1,29 @@
 import { Link } from "react-router-dom";
-
 import LogoIcon from "../../images/logo/logo-icon.svg";
 import DarkModeSwitcher from "./DarkModeSwitcher";
+import { useState } from "react";
+import { useWeather } from "../../routes/getWeatherByName";
+import { useName } from "../../store/weatherName";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
+  const {name,updateName}=useName()
+  // State to hold the search input value
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [cityName, setCityName] = useState<string>("");
+
+  // Use the custom hook to fetch weather data based on the city name
+  //@ts-ignore
+  const { data: weather, isLoading, error } = useWeather(name);
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateName(searchValue)
+    setCityName(searchValue);
+  };
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
@@ -60,9 +77,9 @@ const Header = (props: {
         </div>
 
         <div className="hidden sm:block">
-          <form action="https://formbold.com/s/unique_form_id" method="POST">
+          <form onSubmit={handleSearchSubmit} method="POST">
             <div className="relative">
-              <button className="absolute left-0 top-1/2 -translate-y-1/2">
+              <button type="submit" className="absolute left-0 top-1/2 -translate-y-1/2">
                 <svg
                   className="fill-body hover:fill-primary dark:fill-bodydark dark:hover:fill-primary"
                   width="20"
@@ -90,6 +107,8 @@ const Header = (props: {
                 type="text"
                 placeholder="Enter city or location for current weather"
                 className="w-full bg-transparent pl-9 pr-4 text-black focus:outline-none dark:text-white xl:w-125"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
               />
             </div>
           </form>

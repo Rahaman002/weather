@@ -1,6 +1,10 @@
 import { ApexOptions } from "apexcharts";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
+import { useWeather } from "../../routes/getWeatherByName";
+import Loader from "../../common/Loader";
+import { useQueryClient } from "@tanstack/react-query";
+import { useName } from "../../store/weatherName";
 
 const options: ApexOptions = {
   legend: {
@@ -21,7 +25,6 @@ const options: ApexOptions = {
       left: 0,
       opacity: 0.1,
     },
-
     toolbar: {
       show: false,
     },
@@ -48,10 +51,6 @@ const options: ApexOptions = {
     width: [2, 2],
     curve: "straight",
   },
-  // labels: {
-  //   show: false,
-  //   position: "top",
-  // },
   grid: {
     xaxis: {
       lines: {
@@ -78,25 +77,12 @@ const options: ApexOptions = {
     discrete: [],
     hover: {
       size: undefined,
-      sizeOffset: 5,
+      sizeOffset: 3,
     },
   },
   xaxis: {
     type: "category",
-    categories: [
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-    ],
+    categories: [],
     axisBorder: {
       show: false,
     },
@@ -122,27 +108,85 @@ interface ChartOneState {
   }[];
 }
 
+const getFilteredHourlyData = (todayHours: any[], tomorrowHours: any[], currentDateTime: Date) => {
+  const filteredData = [];
+  const labels = [];
+  const temperatures = [];
+  const windSpeeds = [];
+
+  for (let i = -3; i <= 12; i++) {
+    const targetTime = new Date(currentDateTime);
+    targetTime.setHours(currentDateTime.getHours() + i);
+    const targetHour = targetTime.getHours();
+    const targetHourString = targetHour.toString().padStart(2, "0") + ":00:00";
+
+    let hourData;
+    if (targetTime.getDate() === currentDateTime.getDate()) {
+      // Today
+      hourData = todayHours.find((hour) => hour.datetime === targetHourString);
+    } else {
+      // Tomorrow
+      hourData = tomorrowHours.find((hour) => hour.datetime === targetHourString);
+    }
+
+    if (hourData) {
+      filteredData.push(hourData);
+      labels.push(hourData.datetime.slice(0, 5));
+      temperatures.push(((hourData.temp - 31) / 1.8).toFixed(1));
+      windSpeeds.push(hourData.windspeed);
+    }
+  }
+
+  return { labels, temperatures, windSpeeds };
+};
+
 const ChartOne: React.FC = () => {
+  //@ts-ignore
+  const {name}=useName()
+  console.log("name",name)
+  const queryClient=useQueryClient()
+  const data=queryClient.getQueryData(["weather",name ])
+  console.log("data:",data)
+  const currentDateTime = new Date();
+
   const [state, setState] = useState<ChartOneState>({
     series: [
       {
-        name: "Product One",
-        data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45],
+        name: "Temperature in °C",
+        data: [],
       },
-
       {
-        name: "Product Two",
-        data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
+        name: "Wind Speed in km/h",
+        data: [],
       },
     ],
   });
 
-  const handleReset = () => {
-    setState((prevState) => ({
-      ...prevState,
-    }));
-  };
-  handleReset;
+  useEffect(() => {
+    if (data) {
+      //@ts-ignore
+      const todayHours = data?.days[0].hours;
+      //@ts-ignore
+      const tomorrowHours = data?.days[1] ? data?.days[1].hours : [];
+      const { labels, temperatures, windSpeeds } = getFilteredHourlyData(todayHours, tomorrowHours, currentDateTime);
+      setState({
+        series: [
+          {
+            name: "Temperature in °C",
+            data: temperatures,
+          },
+          {
+            name: "Wind Speed in km/h",
+            data: windSpeeds,
+          },
+        ],
+      });
+      //@ts-ignore
+      options.xaxis.categories = labels;
+    }
+  }, [data]);
+
+  
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
@@ -153,8 +197,7 @@ const ChartOne: React.FC = () => {
               <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-primary"></span>
             </span>
             <div className="w-full">
-              <p className="font-semibold text-primary">Total Revenue</p>
-              <p className="text-sm font-medium">12.04.2022 - 12.05.2022</p>
+              <p className="font-semibold text-primary">Temperature</p>
             </div>
           </div>
           <div className="flex min-w-47.5">
@@ -162,8 +205,7 @@ const ChartOne: React.FC = () => {
               <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-secondary"></span>
             </span>
             <div className="w-full">
-              <p className="font-semibold text-secondary">Total Sales</p>
-              <p className="text-sm font-medium">12.04.2022 - 12.05.2022</p>
+              <p className="font-semibold text-secondary">Wind Speed</p>
             </div>
           </div>
         </div>
@@ -185,7 +227,7 @@ const ChartOne: React.FC = () => {
       <div>
         <div id="chartOne" className="-ml-5">
           <ReactApexChart
-            options={options}
+            options={{ ...options, xaxis: { ...options.xaxis, categories: state.series[0].data.map((_, i) => options?.xaxis?.categories[i]) } }}
             series={state.series}
             type="area"
             height={350}
